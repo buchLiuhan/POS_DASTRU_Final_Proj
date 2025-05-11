@@ -14,8 +14,36 @@ namespace POS
         {
             InitializeProducts();
             Login();
-     
+       
         }
+
+        /* xsssssss
+         
+        To do:
+                 -Replace the price from dollar to peso sign -- done
+                 -Utilize arrays 2d and 1d 
+                 - Checkout method for the reciept -- in progress method called payment.
+                 - Quantity of products like if the customer buys the same product it wont look like this: -- done
+
+                       product a
+                       product a
+                   
+                    But should be like this: product a x2 or product a = 2 -- done done done
+
+
+                 -prize calculates as soon as the product is added -- done
+                 -Cashier schedule like time in and time out there should be a timer that counts the amount of time they have worked would replace option 2 on dashboard needs more thought
+                 -Multiple accounts should utilize an excel file or a database well excel file is easier so excel file to store multiple accounts
+                 -Password Concealment
+                 -Bug checking should be done as soon as the build is done 
+             
+                
+                  Done task: Utilizing list, Utilizing Stack, Login method, Dashboard, Make Sale
+         
+         
+         
+         
+         */
 
 
 
@@ -97,7 +125,7 @@ namespace POS
 
 
 
-        static void dashboard()
+        static void dashboard()//might be removed entirely
         {
 
             bool Dashboardrunning = true;
@@ -115,8 +143,8 @@ namespace POS
                 // Options menu with formatting
                 Console.WriteLine("Please select an option:");
                 Console.WriteLine("1: Make a Sale");
-                Console.WriteLine("2: ");
-                Console.WriteLine("3: Exit and Logout");
+                Console.WriteLine("2: Exit and Logout ");// this block has become redundant/ unecessary so must be replace or replaced
+              
                 Console.WriteLine();
                 Console.Write("Your choice (1-3): ");
                 choice = Console.ReadLine();
@@ -130,11 +158,6 @@ namespace POS
                         break;
 
                     case "2":
-                        Console.Clear();
-                        ViewInventory(); // Clear and go to View Inventory
-                        break;
-
-                    case "3":
                         Console.Clear();
                         // Exit and logout message
                         Console.WriteLine("===============================================");
@@ -160,7 +183,7 @@ namespace POS
 
         }//dashboard end
 
-
+        //Expiremental dont touch will be remove if redundant
         class Product
         {
             public string Name { get; set; }
@@ -176,26 +199,27 @@ namespace POS
 
         static void InitializeProducts()
         {
+            int exchangeratepeso = 56;
             Random rand = new Random();
 
-            products.Add(new Product { Id = 1, Name = "Ryzen 9 5900X", Price = 550, Type = "CPU" });
-            products.Add(new Product { Id = 2, Name = "Ryzen 7 5800X", Price = 400, Type = "CPU" });
+            products.Add(new Product { Id = 1, Name = "Ryzen 9 5900X", Price = 550 * exchangeratepeso, Type = "CPU" });
+            products.Add(new Product { Id = 2, Name = "Ryzen 7 5800X", Price = 400 * exchangeratepeso, Type = "CPU" });
 
             // Motherboards
-            products.Add(new Product { Id = 3, Name = "MSI X570 Edge WiFi", Price = 220, Type = "Motherboard" });
-            products.Add(new Product { Id = 4, Name = "ASUS B550-F Gaming", Price = 180, Type = "Motherboard" });
+            products.Add(new Product { Id = 3, Name = "MSI X570 Edge WiFi", Price = 220 * exchangeratepeso, Type = "Motherboard" });
+            products.Add(new Product { Id = 4, Name = "ASUS B550-F Gaming", Price = 180 * exchangeratepeso, Type = "Motherboard" });
 
             // RAM
-            products.Add(new Product { Id = 5, Name = "Corsair LPX 16GB DDR4-3200", Price = 90, Type = "RAM" });
-            products.Add(new Product { Id = 6, Name = "G.Skill Ripjaws V 16GB", Price = 100, Type = "RAM" });
+            products.Add(new Product { Id = 5, Name = "Corsair LPX 16GB DDR4", Price = 90 * exchangeratepeso, Type = "RAM" });
+            products.Add(new Product { Id = 6, Name = "G.Skill Ripjaws V 16GB", Price = 100 * exchangeratepeso, Type = "RAM" });
 
             // Storage
-            products.Add(new Product { Id = 7, Name = "Samsung 970 Evo 1TB", Price = 140, Type = "Storage" });
-            products.Add(new Product { Id = 8, Name = "WD Blue 2TB HDD", Price = 60, Type = "Storage" });
+            products.Add(new Product { Id = 7, Name = "Samsung 970 Evo 1TB", Price = 140 * exchangeratepeso, Type = "Storage" });
+            products.Add(new Product { Id = 8, Name = "WD Blue 2TB HDD", Price = 60 * exchangeratepeso, Type = "Storage" });
 
             // GPUs
-            products.Add(new Product { Id = 9, Name = "NVIDIA RTX 3080", Price = 700, Type = "GPU" });
-            products.Add(new Product { Id = 10, Name = "NVIDIA RTX 3070", Price = 500, Type = "GPU" });
+            products.Add(new Product { Id = 9, Name = "NVIDIA RTX 3080", Price = 700 * exchangeratepeso, Type = "GPU" });
+            products.Add(new Product { Id = 10, Name = "NVIDIA RTX 3070", Price = 500 * exchangeratepeso, Type = "GPU" });
 
 
 
@@ -222,37 +246,50 @@ namespace POS
 
 
 
-        }// initialize method 
+        }//end of expiremental
 
 
 
 
 
-
-
+        
+        //part of the main function
         static void MakeSale()
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;//for peso sign
+
             List<Product> cart = new List<Product>();
             bool saleInProgress = true;
 
             while (saleInProgress)
             {
-                
+                int total = 0;
                 Console.WriteLine("Items in your cart:");
-                foreach (var item in cart)
+
+                var groupedCart = cart.GroupBy(item => item.Id);
+
+                foreach (var group in groupedCart)
                 {
-                    Console.WriteLine($"{item.Name} - ${item.Price}");
+                    var product = group.First(); // Get the first item from the grouped items (since they are identical)
+                    int quantity = group.Count();   // Count the number of items in this group
+                    int totalPrice = product.Price * quantity;  // Calculate the total price for the grouped items
+                    if (quantity > 1) Console.WriteLine($"{quantity}x {product.Name} - ₱{totalPrice:F2}"); // If the quantity is greater than one, show it as '2x' along with the total price
+                    else Console.WriteLine($"{product.Name} - ₱{product.Price:F2}");// If there's only one item, just print the product name and price
+                    total = total += totalPrice;
+                   
+                    
                 }
 
+                Console.WriteLine($"--------------------------------|Total: {total:F2}|");
                 Console.WriteLine();
                 
 
                 Console.WriteLine("Inventory:");
-                Console.WriteLine("{0,-4} | {1,-30} | {2,6} | {3,-12} | {4,-12}",
-      "ID", "Product Name", "Price", "Type", "Availability");
+                Console.WriteLine("{0,-4} | {1,-25} | {2,12} | {3,-12} | {4,-12}",
+    "ID", "Product Name", "Price", "Type", "Availability");
                 Console.WriteLine(new string('-', 4) + "-+-" +
-                                  new string('-', 30) + "-+-" +
-                                  new string('-', 6) + "-+-" +
+                                  new string('-', 25) + "-+-" +
+                                  new string('-', 12) + "-+-" +
                                   new string('-', 12) + "-+-" +
                                   new string('-', 12));
 
@@ -260,10 +297,10 @@ namespace POS
                 foreach (var item in products)
                 {
                     var availability = item.Available ? "Available" : "Sold Out";
-                    Console.WriteLine("{0,-4} | {1,-30} | {2,6:C0} | {3,-12} | {4,-12}",
+                    Console.WriteLine("{0,-4} | {1,-25} | ₱{2,10:F2} | {3,-12} | {4,-12}",
                         item.Id,
                         item.Name,
-                      "$" + item.Price,
+                      "₱" + item.Price.ToString("F2"),
                         item.Type,
                         availability);
                 }
@@ -321,23 +358,9 @@ namespace POS
                         }
                         break;
 
-                    case "3":
-                        int total = 0;
-                        Console.WriteLine("\nReceipt:");
-                        string history = "";
-                        foreach (var item in cart)
-                        {
-                            Console.WriteLine($"{item.Name} - ${item.Price}");
-                            total += item.Price;
-                            history += $"{item.Name} - ${item.Price}\n";
-                        }
-                        Console.WriteLine($"Total: ${total}");
-                        Console.WriteLine("Sale completed. Thank you!");
+                    case "3"://finish today
 
-                        // Add to purchase history
-                        if (purchaseHistory.Count == 2) purchaseHistory.Pop();
-                        purchaseHistory.Push(history + $"Total: ${total}\n---");
-
+                        Payment(cart);
                         saleInProgress = false;
                         break;
 
@@ -382,7 +405,8 @@ namespace POS
 
 
 
-        static void ViewInventory() { }
+        static void Payment(List<Product>carttotalled)//priorotize this
+        { }
 
 
 
