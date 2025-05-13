@@ -14,15 +14,15 @@ namespace POS
         {
             InitializeProducts();
             Login();
-       
+
         }
 
         /* xsssssss
          
         To do:
                  -Replace the price from dollar to peso sign -- done
-                 -Utilize arrays 2d and 1d 
-                 - Checkout method for the reciept -- in progress method called payment.
+                 -Utilize arrays 2d and 1d -- done
+                 - Checkout method for the reciept -- done.
                  - Quantity of products like if the customer buys the same product it wont look like this: -- done
 
                        product a
@@ -32,13 +32,13 @@ namespace POS
 
 
                  -prize calculates as soon as the product is added -- done
-                 -Cashier schedule like time in and time out there should be a timer that counts the amount of time they have worked would replace option 2 on dashboard needs more thought
-                 -Multiple accounts should utilize an excel file or a database well excel file is easier so excel file to store multiple accounts
-                 -Password Concealment
-                 -Bug checking should be done as soon as the build is done 
-             
+                 -Cashier schedule like time in and time out there should be a timer that counts the amount of time they have worked would replace option 2 on dashboard needs more thought -- in progress
+                 -Multiple accounts - done
+                 -Password Concealment - done
+                 -Bug checking should be done as soon as the build is done - after everything
+                 -Utilize Stack  for history - After cashier schedule
                 
-                  Done task: Utilizing list, Utilizing Stack, Login method, Dashboard, Make Sale
+                 
          
          
          
@@ -46,15 +46,46 @@ namespace POS
          */
 
 
+        static string ReadPassword()
+        {
+            var pwd = new System.Text.StringBuilder();
+            ConsoleKeyInfo key;
+            while ((key = Console.ReadKey(intercept: true)).Key != ConsoleKey.Enter)
+            {
+                if (key.Key == ConsoleKey.Backspace)
+                {
+                    if (pwd.Length > 0)
+                    {
+                        pwd.Length--;
+                        Console.Write("\b \b"); // erase last '*'
+                    }
+                }
+                else if (!char.IsControl(key.KeyChar))
+                {
+                    pwd.Append(key.KeyChar);
+                    Console.Write('*');
+                }
+            }
+            Console.WriteLine();
+            return pwd.ToString();
+        }
+
+
+
+
+
 
         static void Login()
         {
 
-            string Username = "user123", user;
-            string Password = "pass123", pass;
-            bool tryagain = true;
+            string[] users = { "Mathilda", "Leslie", "Rafaela", "1"};
+            string[] passwords = { "roamer", "marksmen", "roamer1", "1" };
 
-            while (tryagain)
+            string  user;
+            string pass;
+            bool tryAgain = true;
+
+            while (tryAgain)
             {
                 string choice;
 
@@ -73,42 +104,67 @@ namespace POS
                 Console.WriteLine();
 
                 Console.Write("Enter Password: ");
-                pass = Console.ReadLine();
+                pass = ReadPassword();
                 Console.WriteLine();
 
-                if (user == Username && pass == Password)
+
+                int indexValidaccount = -1;
+                for (int i = 0; i < users.Length; i++)
                 {
+
+                    if (users[i] == user && passwords[i] == pass)
+                    {
+
+                        indexValidaccount = i;
+                        break;
+
+                    }
+
+                }
+
+              if(indexValidaccount >= 0) 
+               {
+
                     Console.Clear();
-                    // Add some design after successful login
+                    // Design for successful login
                     Console.WriteLine("===============================================");
-                    Console.WriteLine("            Login Successful!                 ");
+                    Console.WriteLine("            Login Successful!                  ");
+                    Console.WriteLine("===============================================");
+                    Console.WriteLine($"         Welcome, {users[indexValidaccount]}!             ");
                     Console.WriteLine("===============================================");
                     Console.WriteLine("Press any key to continue...");
-                    Console.ReadLine();
+                    Console.ReadKey();
                     Console.Clear();
                     dashboard();
-                    break;
+                    return;
+
                 }
-                else
-                {
+
+              else
+              {
+
                     Console.Clear();
                     // Design for failed login
                     Console.WriteLine("===============================================");
-                    Console.WriteLine("              Login Failed!                   ");
+                    Console.WriteLine("              Login Failed!                    ");
                     Console.WriteLine("===============================================");
-                    Console.WriteLine("Please check your credentials and try again.");
+                    Console.WriteLine("Invalid username or password.");
+
                 }
 
-                // Ask if the user wants to try again with a friendly prompt
+
+
+
+                // Ask if the user wants to try again 
                 Console.WriteLine();
                 Console.Write("Do you want to try again? [y/n]: ");
                 choice = Console.ReadLine();
                 Console.WriteLine();
 
-                tryagain = (choice.Equals("y", StringComparison.OrdinalIgnoreCase) ||
+                tryAgain = (choice.Equals("y", StringComparison.OrdinalIgnoreCase) ||
                             choice.Equals("yes", StringComparison.OrdinalIgnoreCase));
 
-                if (!tryagain)
+                if (!tryAgain)
                 {
                     Console.Clear();
                     // Add a design for exiting
@@ -142,9 +198,10 @@ namespace POS
 
                 // Options menu with formatting
                 Console.WriteLine("Please select an option:");
-                Console.WriteLine("1: Make a Sale");
-                Console.WriteLine("2: Exit and Logout ");// this block has become redundant/ unecessary so must be replace or replaced
-              
+                Console.WriteLine("1: Make a sale");
+                Console.WriteLine("2: Check schedule");
+                Console.WriteLine("3: Exit and logout ");// this block has become redundant/ unecessary so must be replace or replaced
+
                 Console.WriteLine();
                 Console.Write("Your choice (1-3): ");
                 choice = Console.ReadLine();
@@ -157,7 +214,7 @@ namespace POS
                         MakeSale(); // Clear and go to Make Sale
                         break;
 
-                    case "2":
+                    case "3":
                         Console.Clear();
                         // Exit and logout message
                         Console.WriteLine("===============================================");
@@ -181,7 +238,7 @@ namespace POS
 
 
 
-        }//dashboard end
+        }//program class end
 
         //Expiremental dont touch will be remove if redundant
         class Product
@@ -190,7 +247,6 @@ namespace POS
             public string Type { get; set; }
             public int Id { get; set; }
             public int Price { get; set; }
-            public bool Available { get; set; }
 
         }
 
@@ -222,41 +278,23 @@ namespace POS
             products.Add(new Product { Id = 10, Name = "NVIDIA RTX 3070", Price = 500 * exchangeratepeso, Type = "GPU" });
 
 
-
-            var shuffle = products.OrderBy(p => rand.Next()).ToList();
-            int soldOutCount = rand.Next(3, 5);
-
-
-
-            int remaining = soldOutCount;  // copy the count
-            foreach (var prod in shuffle)
-            {
-                if (remaining > 0)
-                {
-                    prod.Available = false;
-                    remaining--;            // decrement the copy
-                }
-                else
-                {
-                    prod.Available = true;
-                }
-            }
-
-
-
-
-
         }//end of expiremental
 
 
 
 
 
-        
+
+
+
+
+
+
+
         //part of the main function
         static void MakeSale()
         {
-            Console.OutputEncoding = System.Text.Encoding.UTF8;//for peso sign
+            Console.OutputEncoding = System.Text.Encoding.UTF8;//for peso sign so it doesn't display '?'
 
             List<Product> cart = new List<Product>();
             bool saleInProgress = true;
@@ -266,7 +304,7 @@ namespace POS
                 int total = 0;
                 Console.WriteLine("Items in your cart:");
 
-                var groupedCart = cart.GroupBy(item => item.Id);
+                var groupedCart = cart.GroupBy(item => item.Id);// a function for displaying items like this: 2x item.
 
                 foreach (var group in groupedCart)
                 {
@@ -274,35 +312,25 @@ namespace POS
                     int quantity = group.Count();   // Count the number of items in this group
                     int totalPrice = product.Price * quantity;  // Calculate the total price for the grouped items
                     if (quantity > 1) Console.WriteLine($"{quantity}x {product.Name} - ₱{totalPrice:F2}"); // If the quantity is greater than one, show it as '2x' along with the total price
-                    else Console.WriteLine($"{product.Name} - ₱{product.Price:F2}");// If there's only one item, just print the product name and price
+                    else Console.WriteLine($"{quantity}x {product.Name} - ₱{product.Price:F2}");// If there's only one item, just print the product name and price
                     total = total += totalPrice;
-                   
-                    
+
+
                 }
 
                 Console.WriteLine($"--------------------------------|Total: {total:F2}|");
                 Console.WriteLine();
-                
+
 
                 Console.WriteLine("Inventory:");
-                Console.WriteLine("{0,-4} | {1,-25} | {2,12} | {3,-12} | {4,-12}",
-    "ID", "Product Name", "Price", "Type", "Availability");
-                Console.WriteLine(new string('-', 4) + "-+-" +
-                                  new string('-', 25) + "-+-" +
-                                  new string('-', 12) + "-+-" +
-                                  new string('-', 12) + "-+-" +
-                                  new string('-', 12));
+                Console.WriteLine("{0,-4} | {1,-25} | {2,16} | {3,-12}", "ID", "Product Name", "Price", "Type");
+                Console.WriteLine(new string('-', 4) + "-+-" + new string('-', 25) + "-+-" + new string('-', 16) + "-+-" + new string('-', 12));
 
                 // Rows
                 foreach (var item in products)
                 {
-                    var availability = item.Available ? "Available" : "Sold Out";
-                    Console.WriteLine("{0,-4} | {1,-25} | ₱{2,10:F2} | {3,-12} | {4,-12}",
-                        item.Id,
-                        item.Name,
-                      "₱" + item.Price.ToString("F2"),
-                        item.Type,
-                        availability);
+
+                    Console.WriteLine("{0,-4} | {1,-25} | ₱{2,15:F2} | {3,-12}", item.Id, item.Name, item.Price, item.Type);
                 }
 
                 Console.WriteLine();
@@ -310,9 +338,8 @@ namespace POS
                 Console.WriteLine("1: Add item to cart");
                 Console.WriteLine("2: Remove item from cart");
                 Console.WriteLine("3: Finalize sale");
-                Console.WriteLine("4: View last 2 purchase histories");
-                Console.WriteLine("5: Return to Dashboard");
-                Console.Write("Please select an option (1-5): ");
+                Console.WriteLine("4: Return to Dashboard");
+                Console.Write("Please select an option (1-4): ");
                 string choice = Console.ReadLine();
 
                 switch (choice)
@@ -324,15 +351,9 @@ namespace POS
                             var product = products.FirstOrDefault(p => p.Id == addId);
                             if (product != null)
                             {
-                                if (product.Available)
-                                {
-                                    cart.Add(product);
-                                    Console.WriteLine($"Added {product.Name} to the cart.");
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Item is currently sold out.");
-                                }
+                                cart.Add(product);
+                                Console.WriteLine($"Added {product.Name} to the cart.");
+
                             }
                             else
                             {
@@ -358,21 +379,13 @@ namespace POS
                         }
                         break;
 
-                    case "3"://finish today
+                    case "3"://finish today almost done
 
-                        Payment(cart);
-                        saleInProgress = false;
+                        Payment(cart, total);
+                        saleInProgress = true;
                         break;
 
                     case "4":
-                        Console.WriteLine("\nLast 2 Purchases:");
-                        foreach (var record in purchaseHistory.Reverse())
-                        {
-                            Console.WriteLine(record);
-                        }
-                        break;
-
-                    case "5":
                         saleInProgress = false;
                         break;
 
@@ -405,8 +418,92 @@ namespace POS
 
 
 
-        static void Payment(List<Product>carttotalled)//priorotize this
-        { }
+        static void Payment(List<Product> cart, int total)//priorotize this
+        {
+
+            Console.Clear();
+            int subtotal = total;
+            double vatRate = 0.12;
+            double vat = subtotal * vatRate;
+            double finalTotal = subtotal + vat;
+
+            Console.WriteLine("---------- RECEIPT ----------");
+            Console.WriteLine("Store Name:   L's Tech Shop");
+            Console.WriteLine($"Date: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            Console.WriteLine("----------------------------");
+
+            foreach (var group in cart.GroupBy(item => item.Id))
+            {
+                var product = group.First();
+                int quantity = group.Count();
+                int totalPrice = product.Price * quantity;
+                Console.WriteLine($"{quantity,2}x {product.Name,-20} - ₱{totalPrice,8:F2}");
+            }
+
+            Console.WriteLine("----------------------------");
+            Console.WriteLine($"Subtotal:        ₱{subtotal,8:F2}");
+            Console.WriteLine($"VAT (12%):      ₱{vat,8:F2}");
+            Console.WriteLine($"Total:          ₱{finalTotal,8:F2}");
+            Console.WriteLine("----------------------------");
+
+            Console.WriteLine("Enter '00' to exit");
+            Console.Write($"Enter payment amount:  ₱");
+            string input = Console.ReadLine();
+
+            if (input == "00")
+            {
+                Console.WriteLine("Cancelling payment...");
+                return;
+            }
+
+
+
+
+
+
+            if (double.TryParse(input, out double payment))
+            {
+                double change = payment - finalTotal;
+                if (change >= 0)
+                {
+                    Console.WriteLine($"Change:  ₱{change,8:F2}");
+                    Console.WriteLine("===================================================+");
+                    Console.WriteLine("Payment successful. Please press Enter to print.");
+                    Console.WriteLine("===================================================+");
+                    Console.ReadLine();
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.WriteLine("Insufficient payment. Please try again.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid payment.");
+            }
+            
+
+
+
+            /* Console.WriteLine("\nLast 2 Purchases:");
+            foreach (var record in purchaseHistory.Reverse())
+            {
+                Console.WriteLine(record);
+            } */ // for use later // utilizes the stack will be used for purchase history also we should add exit to this method for user friendliness
+
+
+
+
+
+
+        }
+
+
+
+
+
+
 
 
 
