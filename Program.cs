@@ -135,7 +135,8 @@ namespace POS
                     Console.WriteLine("Press any key to continue...");
                     Console.ReadKey();
                     Console.Clear();
-                    dashboard();
+                    string passeduser = users[indexValidaccount];
+                    dashboard(passeduser);
                     return;
 
                 }
@@ -181,7 +182,7 @@ namespace POS
 
 
 
-        static void dashboard()//might be removed entirely
+        static void dashboard(string userpassed)//might be removed entirely
         {
 
             bool Dashboardrunning = true;
@@ -192,7 +193,7 @@ namespace POS
                 Console.Clear();
                 // Design for the Dashboard header
                 Console.WriteLine("===============================================");
-                Console.WriteLine("             Welcome to the Dashboard          ");
+                Console.WriteLine($"             Welcome to the Dashboard: {userpassed}          ");
                 Console.WriteLine("===============================================");
                 Console.WriteLine();
 
@@ -212,6 +213,11 @@ namespace POS
                     case "1":
                         Console.Clear();
                         MakeSale(); // Clear and go to Make Sale
+                        break;
+
+                    case "2":
+                        Console.Clear();
+                        cashierSchedule(userpassed); // Clear and go to Make Sale
                         break;
 
                     case "3":
@@ -238,9 +244,78 @@ namespace POS
 
 
 
-        }//program class end
+        }// dashboard end
 
-        //Expiremental dont touch will be remove if redundant
+
+
+        static void cashierSchedule(string userthatisPassed)
+        {
+
+            Console.Clear();
+            Console.WriteLine("===============================================");
+            Console.WriteLine($"        Schedule for {userthatisPassed}       ");
+            Console.WriteLine("===============================================");
+
+            int currentHour = DateTime.Now.Hour;
+            string scheduledCashier;
+            int hoursLeft;
+
+            // Determine scheduled cashier based on current hour
+            if (currentHour >= 8 && currentHour < 13)
+            {
+                scheduledCashier = "Mathilda";
+                hoursLeft = 13 - currentHour;
+            }
+            else if (currentHour >= 13 && currentHour < 17)
+            {
+                scheduledCashier = "Leslie";
+                hoursLeft = 17 - currentHour;
+            }
+            else if (currentHour >= 17 && currentHour < 21)
+            {
+                scheduledCashier = "Rafaela";
+                hoursLeft = 21 - currentHour;
+            }
+            else
+            {
+                Console.WriteLine("The shop is currently closed.");
+                Console.WriteLine("Working hours are from 8 AM to 9 PM.");
+                Console.WriteLine("Press any key to go back...");
+                Console.ReadLine();
+                return;
+            }
+
+            // Display shift info
+            Console.WriteLine($"Current Time: {DateTime.Now:hh:mm tt}");
+            Console.WriteLine($"Logged in Cashier: {userthatisPassed}");
+            Console.WriteLine($"Scheduled Cashier: {scheduledCashier}");
+            Console.WriteLine($"Hours Left in Shift: {hoursLeft} hour(s)");
+            Console.WriteLine("===============================================");
+
+            // Check for mismatch
+            if (userthatisPassed != scheduledCashier)
+            {
+                Console.WriteLine($"Warning: {userthatisPassed} is not scheduled to work at this time.");
+                Console.WriteLine($"Expected Cashier: {scheduledCashier}");
+                Console.WriteLine("===============================================");
+            }
+
+            Console.WriteLine("Press any key to go back...");
+            Console.ReadLine();
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+        //List for product
         class Product
         {
             public string Name { get; set; }
@@ -382,6 +457,7 @@ namespace POS
                     case "3"://finish today almost done
 
                         Payment(cart, total);
+                        cart.Clear();
                         saleInProgress = true;
                         break;
 
